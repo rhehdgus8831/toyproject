@@ -1,6 +1,6 @@
 package com.spring.toyproject.service;
 
-import com.spring.toyproject.config.PasswordEncoderConfig;
+import com.spring.toyproject.domain.dto.request.LoginRequest;
 import com.spring.toyproject.domain.dto.request.SignUpRequest;
 import com.spring.toyproject.domain.dto.response.UserResponse;
 import com.spring.toyproject.domain.entity.User;
@@ -15,8 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 사용자 모듈 서비스 클래스
- * 인증, 회원 관련 비즈니스 로직 처리
- * 트랙잭션 처리
+ * 인증, 회원관련 비즈니스 로직 처리
+ * 트랜잭션 처리
  */
 @Transactional
 @Service
@@ -30,22 +30,21 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     /**
-     * 회원가입 로직
+     * 회원 가입 로직
      */
-    public UserResponse signup(SignUpRequest requestDto){
+    public UserResponse signup(SignUpRequest requestDto) {
 
         // 사용자명 중복 체크
-        if(userRepository.existsByUsername(requestDto.getUsername())){
+        if (userRepository.existsByUsername(requestDto.getUsername())) {
             throw new BusinessException(ErrorCode.DUPLICATE_USERNAME);
         }
         // 이메일 중복 체크
-        if(userRepository.existsByEmail(requestDto.getEmail())){
+        if (userRepository.existsByEmail(requestDto.getEmail())) {
             throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);
         }
 
         // 패스워드를 해시로 암호화
         String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
-
 
         // dto를 entity로 변경
         User user = User.builder()
@@ -54,12 +53,40 @@ public class UserService {
                 .password(encodedPassword)
                 .build();
 
-        // db insert명령
+        // db에 insert명령
         User saved = userRepository.save(user);
-        log.info("새로운 사용자 가입 : {}",saved);
+        log.info("새로운 사용자 가입: {}", saved);
 
         return UserResponse.from(saved);
     }
 
+    /**
+     * 로그인 로직
+     */
+    public void authenticate(LoginRequest loginRequest) {
+
+        // 사용자 조회 (사용자명인지 이메일인지 아직 모름)
+        String inputAccount = loginRequest.getUsernameOrEmail();
+
+        User user = userRepository.findByUsername(inputAccount)
+                .orElseGet(() -> userRepository.findByEmail(inputAccount)
+                        .orElseThrow(
+                                () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
+                        )
+                );
+
+        // 비밀번호 검증
+        // 사용자가 입력한 패스워드 ( 평문 )
+        String inputPassword = loginRequest.getPassword();
+
+        // DB에 저장된 패스워드 ( 암호문 )
+        String storedPassword = user.getPassword();
+
+        // 평문을 다시 해시화해서 암호화한후 비교
+        if (!passwordEncoder.matches(inputPassword, storedPassword)) {
+            throw new BusinessException(ErrorCode.INVALID_PASSWORD);
+        }
+
+    }
 
 }
