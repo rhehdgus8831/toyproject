@@ -29,6 +29,7 @@ public class AuthController {
     public ResponseEntity<?> signup(@Valid @RequestBody SignUpRequest requestDto) {
         log.info("회원가입 요청: {}", requestDto.getUsername());
 
+
         UserResponse response = userService.signup(requestDto);
 
         return ResponseEntity
