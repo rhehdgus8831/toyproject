@@ -24,3 +24,11 @@ logging:
     org.springframework.web: DEBUG
     # SQL param binding check
     org.hibernate.type.descriptor.sql.BasicBInder : TRACE
+
+
+# jwt setting
+jwt:
+  # secret key (실제 운영에서는 환경변수로 관리)
+  secret: 7VZC2qbJz2BEsdR0XQF4za5DlSpsZRUUmUzmR49iptY=
+  # 만료시간 (ms) - 24 hour
+  expiration: 86400000
