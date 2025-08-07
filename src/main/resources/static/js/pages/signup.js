@@ -11,6 +11,20 @@ const SignupPage = () => {
         $confirmPasswordInput: null,
     };
 
+    // 폼 제출 이벤트
+    const handleSubmit = e => {
+        e.preventDefault();
+        console.log('form이 제출됨!');
+    }
+
+
+    // 이벤트 관리
+    const bindEvents = () => {
+        // 1. 폼 제출 이벤트
+        state.$form.addEventListener(`submit`, handleSubmit);
+    };
+
+
     // 초기화 함수
     const init = () => {
         console.log('회원가입 JS가 로딩되었습니다.');
@@ -22,6 +36,9 @@ const SignupPage = () => {
         state.$emailInput = document.getElementById('email');
         state.$passwordInput = document.getElementById('password');
         state.$confirmPasswordInput = document.getElementById('confirmPassword');
+
+        // 이벤트 바인딩
+        bindEvents();
     };
 
     return {
