@@ -1,7 +1,7 @@
 // 공통 유틸리티 모듈
 export const utils = {
 
-    //메세지 창을 띄웠다가 닫는 함수
+    // 메시지 창을 띄웠다가 닫는 함수
     showMessage(message, type = 'info', container = null) {
         const alertDiv = document.createElement('div');
         alertDiv.className = `alert alert-${

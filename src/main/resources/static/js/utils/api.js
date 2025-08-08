@@ -1,12 +1,12 @@
 // API 서비스 모듈
 export const apiService = {
+
     async request(url, options = {}) {
         const defaultOptions = {
             headers: {
                 'Content-Type': 'application/json',
             },
         };
-
 
         const config = { ...defaultOptions, ...options };
 
@@ -18,7 +18,6 @@ export const apiService = {
         }
 
         return data;
-
     },
 
     async post(url, data) {
@@ -36,15 +35,14 @@ export const apiService = {
 
     async delete(url) {
         return this.request(url, {
-            method: 'DELETE',
+            method: 'DELETE'
         });
     },
 
-    async put(url, data) {
+    async put(url, payload) {
         return this.request(url, {
             method: 'PUT',
-            body: JSON.stringify(data),
+            body: JSON.stringify(payload)
         });
     }
-
 };
