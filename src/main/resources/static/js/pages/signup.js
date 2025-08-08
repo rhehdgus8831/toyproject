@@ -1,6 +1,5 @@
-
-import { apiService } from '../utils/api.js';
-import { utils } from '../utils/util.js';
+import {apiService} from '../utils/api.js';
+import {utils} from '../utils/util.js';
 
 
 // 회원가입 관련 함수들의 모음
@@ -81,25 +80,51 @@ const SignupPage = () => {
         showValidationMessage(inputElement, message, isValid ? 'success' : 'error');
     };
 
+    // 사용자명 중복확인 함수
+    const checkDuplicateUsername = async (username) => {
+        try{
+            const response = await apiService.get(`/api/auth/check-username?username=${username}`);
 
+            // ui에 피드백 표시
+            if (response.data){
+                updateInputState(
+                    state.$usernameInput
+                    , false
+                    , response.message
+                );
+            }else {
+                updateInputState(
+                    state.$usernameInput
+                    , true
+                    , response.message
+                );
+            }
 
+        }catch (error) {
+
+        }
+
+    };
 
     // 사용자명 입력 이벤트 처리
     const handleUsernameInput = debounce(e => {
         const username = e.target.value;
 
         // 기본 검증
-        if (username.length < 3 || username.length > 15){
+        if (username.length < 3 || username.length > 15) {
 
             updateInputState(
                 state.$usernameInput
                 , false
-                , '사용자명은 3~15자 사이여야 합니다.')
+                , '사용자명은 3~15자 사이여야 합니다.');
 
             return;
         }
 
-    },500);
+        // 중복 확인
+        checkDuplicateUsername(username);
+
+    }, 500);
 
 
     // 폼 제출 이벤트
@@ -133,7 +158,7 @@ const SignupPage = () => {
         // 1. form 제출 이벤트
         state.$form?.addEventListener('submit', handleSubmit);
         // 2. 사용자명 입력 이벤트
-        state.$usernameInput.addEventListener(`input`,handleUsernameInput)
+        state.$usernameInput.addEventListener(`input`, handleUsernameInput);
     };
 
     // 초기화 함수
