@@ -92,27 +92,20 @@ public class UserService {
             throw new BusinessException(ErrorCode.INVALID_PASSWORD);
         }
 
-        // 로그인 성공 시 해야할 로직 - 토큰 발급
+        // 로그인 성공시 해야할 로직 - 토큰 발급
         String token = jwtProvider.generateToken(user.getUsername());
-        log.info("사용자 로그인: {}",user.getUsername());
+        log.info("사용자 로그인: {}", user.getUsername());
 
-        // 발급 후 -> 클라이언트에게 전송
+        // 발급 후? -> 클라이언트에게 전송
         return AuthResponse.of(token, UserResponse.from(user));
-
-
     }
 
 
-
     public boolean checkDuplicateUsername(String username) {
-
         return userRepository.existsByUsername(username);
     }
 
     public boolean checkDuplicateEmail(String email) {
-
-        return userRepository.existsByUsername(email);
+        return userRepository.existsByEmail(email);
     }
-
-
 }

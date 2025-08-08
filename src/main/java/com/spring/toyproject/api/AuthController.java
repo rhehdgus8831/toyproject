@@ -25,9 +25,11 @@ public class AuthController {
      * POST : /api/auth/signup
      */
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@Valid @RequestBody SignUpRequest requestDto) {
-        log.info("회원가입 요청: {}", requestDto.getUsername());
+    public ResponseEntity<?> signup(
+            @Valid @RequestBody SignUpRequest requestDto
+    ) {
 
+        log.info("회원가입 요청: {}", requestDto.getUsername());
 
         UserResponse response = userService.signup(requestDto);
 
@@ -39,45 +41,52 @@ public class AuthController {
     }
 
     /**
-     * 로그인 API - GET 방식은 URL에 파라미터가 노출될 가능성이 높음
+     * 로그인 API - GET방식은 URL에 파라미터가 노출될 가능성이 높음
      * POST /api/auth/login
      */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest requestDto) {
-        log.info("로그인 요청 : {}", requestDto.getUsernameOrEmail());
+
+        log.info("로그인 요청: {}", requestDto.getUsernameOrEmail());
 
         AuthResponse response = userService.authenticate(requestDto);
 
         return ResponseEntity.ok().body(
-                ApiResponse.success("로그인이 완료되었습니다.",response)
+                ApiResponse.success("로그인이 완료되었습니다.", response)
         );
     }
 
     /**
      * 사용자명 중복 체크 API
-     * GET /api/auth/check-username?username =
+     * GET /api/auth/check-username?username=xxx
      */
     @GetMapping("/check-username")
     public ResponseEntity<?> checkUsername(@RequestParam String username) {
 
         boolean exists = userService.checkDuplicateUsername(username);
 
-        return ResponseEntity.ok().body(ApiResponse.success(exists ? "이미 사용중인 사용자 명입니다." : "사용 가능한 사용자 명입니다.",exists));
+        return ResponseEntity.ok()
+                .body(ApiResponse.success(
+                        exists ? "이미 사용 중인 사용자명입니다." : "사용 가능한 사용자명입니다."
+                        , exists
+                ));
     }
-
 
     /**
-     * 이메일명 중복 체크 API
-     * GET /api/auth/check-email?email =
+     * 이메일 중복 체크 API
+     * GET /api/auth/check-email?email=xxx
      */
     @GetMapping("/check-email")
-    public ResponseEntity<?> checkUserEmail(@RequestParam String email) {
+    public ResponseEntity<?> checkEmail(@RequestParam String email) {
 
-        boolean exists = userService.checkDuplicateUsername(email);
+        boolean exists = userService.checkDuplicateEmail(email);
 
-        return ResponseEntity.ok().body(ApiResponse.success(exists ? "이미 사용중인 이메일입니다." : "사용 가능한 이메일입니다.",exists));
+        return ResponseEntity.ok()
+                .body(ApiResponse.success(
+                        exists ? "이미 사용 중인 이메일입니다." : "사용 가능한 이메일입니다."
+                        , exists
+                ));
     }
-
 
 
 }
