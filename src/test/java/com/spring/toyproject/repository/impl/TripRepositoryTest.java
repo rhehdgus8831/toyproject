@@ -6,16 +6,15 @@ import com.spring.toyproject.domain.entity.User;
 import com.spring.toyproject.repository.base.TripRepository;
 import com.spring.toyproject.repository.base.UserRepository;
 import com.spring.toyproject.repository.custom.TripRepositoryCustom;
-import com.spring.toyproject.repository.custom.TripSearchCondition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -23,9 +22,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
-@DataJpaTest
-@ActiveProfiles("test")
+@SpringBootTest
 @Transactional
+@Rollback
 class TripRepositoryTest {
 
     @Autowired
@@ -100,7 +99,7 @@ class TripRepositoryTest {
         // 검색 조건
         TripRepositoryCustom.TripSearchCondition condition
                 = TripRepositoryCustom.TripSearchCondition.builder()
-                .sortBy("createdAt")
+                .sortBy("endDate")
                 .sortDirection("DESC")
                 .build();
 
