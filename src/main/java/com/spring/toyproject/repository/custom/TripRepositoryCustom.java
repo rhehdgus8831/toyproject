@@ -8,16 +8,13 @@ import lombok.Getter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-
-
 /**
- * QueryDSL과  Native Query 등을 사용하는 메서드를 명세하는 인테페이스
+ * QueryDSL과 Native Query등을 사용하는 메서드를 명세하는 인터페이스
  */
 public interface TripRepositoryCustom {
 
-    // 동적 쿼리로 검색 조건별 여행 목록 조회 메서드 ( 페이징 포함 )
+    // 동적 쿼리로 검색 조건별 여행 목록 조회 메서드 (페이징 포함)
     Page<Trip> findTripsByUser(User user, TripSearchCondition condition, Pageable pageable);
-
 
     /**
      * 여행 검색 조건들을 담는 클래스
@@ -32,13 +29,10 @@ public interface TripRepositoryCustom {
 
         // 정렬 조건
         @Builder.Default
-        private String sortBy = "createdAt"; // createdAt, startDate, endDate, budget, title
+        private String sortBy = "createdAt"; // createdAt, startDate, endDate, destination, title
 
         // 내림차 오름차 여부
         @Builder.Default
         private String sortDirection = "DESC"; // ASC, DESC
-
-
     }
-
 }
