@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
-@Rollback
+@Rollback(false)
 class TripRepositoryTest {
 
     @Autowired
@@ -119,6 +119,24 @@ class TripRepositoryTest {
         // 총 페이지 수는 2페이지까지 있을 것이다.
         assertThat(tripPage.getTotalPages()).isEqualTo(2);
     }
+
+    @Test
+    @DisplayName("여행 상태 변경 테스트")
+    void updateTripsStatus() {
+        //given
+        Trip trip = tripRepository.findById(testTrip3.getId()).orElseThrow();
+        //when
+        trip.updateStatus(TripStatus.ONGOING);
+        tripRepository.save(trip);
+
+        //then
+        Trip updatedTrip = tripRepository.findById(testTrip3.getId()).orElseThrow();
+        System.out.println("updatedTrip = " + updatedTrip);
+
+        assertThat(updatedTrip.getStatus()).isEqualTo(TripStatus.ONGOING);
+    }
+
+
 
 
 }
