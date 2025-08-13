@@ -3,8 +3,6 @@ package com.spring.toyproject.repository.impl;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.spring.toyproject.domain.entity.QTrip;
-import com.spring.toyproject.domain.entity.QUser;
 import com.spring.toyproject.domain.entity.Trip;
 import com.spring.toyproject.domain.entity.User;
 import com.spring.toyproject.repository.custom.TripRepositoryCustom;
@@ -17,7 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static com.spring.toyproject.domain.entity.QTrip.*;
+import static com.spring.toyproject.domain.entity.QTrip.trip;
 
 /**
  * TripRepositoryCustom의 구현체
@@ -31,8 +29,9 @@ public class TripRepositoryImpl implements TripRepositoryCustom {
     private final JPAQueryFactory factory;
 
     @Override
-    public Page<Trip> findTripsByUser(User user, TripSearchCondition condition, Pageable pageable) {
+    public Page<Trip> getTripList(User user, TripSearchCondition condition, Pageable pageable) {
 
+        log.info("\n\nfindTripsByUser call by QueryDSL");
         /*
             SELECT *
             FROM trips
@@ -78,8 +77,8 @@ public class TripRepositoryImpl implements TripRepositoryCustom {
                 .where(whereClause)
                 .fetchOne();
 
-        // 페이징 - 원본 데이터 수 374개인데 이걸 한 페이지 당 10개 씩 뿌려야한다
-        // 그럼 총 페이지 수는? 38페이지가 나와야함 (마지막에 4개)
+        // 페이징 원본데이터 수 374개인데 이걸 한페이지당 10개씩 뿌려야된다
+        // 그럼 총 페이지수는? 38페이지
         // 이전, 다음 버튼 활성화 여부
         return new PageImpl<>(tripList, pageable, totalCount == null ? 0L : totalCount);
     }

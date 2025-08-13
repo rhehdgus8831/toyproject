@@ -1,14 +1,18 @@
 package com.spring.toyproject.service;
 
 import com.spring.toyproject.domain.dto.request.TripRequest;
+import com.spring.toyproject.domain.dto.response.TripListItemDto;
 import com.spring.toyproject.domain.entity.Trip;
 import com.spring.toyproject.domain.entity.User;
 import com.spring.toyproject.exception.BusinessException;
 import com.spring.toyproject.exception.ErrorCode;
 import com.spring.toyproject.repository.base.TripRepository;
 import com.spring.toyproject.repository.base.UserRepository;
+import com.spring.toyproject.repository.custom.TripRepositoryCustom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +31,7 @@ public class TripService {
      *
      * @param request  - 여행 생성 요청시 클라이언트가 보내는 JSON
      * @param username - 로그인한 유저가 제시한 토큰에서 파싱한 이름
-     * @return 생성된 여행 정보
+     * @return 생성된 여행의 정보
      */
     public Trip createTrip(TripRequest request, String username) {
         log.info("여행 생성 시작! - 사용자명: {}, 제목: {}"
@@ -57,6 +61,19 @@ public class TripService {
         log.info("여행 생성 완료 - 여행 ID: {}", savedTrip.getId());
 
         return savedTrip;
+    }
+
+    /**
+     * 목록 화면 전용: 최소 필드만 포함한 DTO로 반환
+     */
+    public Page<TripListItemDto> getUserTripsList(String username, TripRepositoryCustom.TripSearchCondition condition, Pageable pageable) {
+        log.info("사용자별 여행 목록 조회(Compact) - 사용자명: {}, 페이징: {}", username, pageable);
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        Page<Trip> tripPage = tripRepository.getTripList(user, condition, pageable);
+        return tripPage.map(TripListItemDto::from);
     }
 
 }

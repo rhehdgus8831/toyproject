@@ -49,9 +49,14 @@ export const authService = {
         window.location.href = '/';
     },
 
-    // 단순히 로그인 했는지만 확인하는 함수
+    // 단순히 로그인했는지만 확인하는 함수
     isAuthenticated() {
         return this.checkAuthStatus().isAuthenticated;
+    },
+
+    // 토큰 가져오기
+    getToken() {
+        return localStorage.getItem(TOKEN);
     },
 
 };
