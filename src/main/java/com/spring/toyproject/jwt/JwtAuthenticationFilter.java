@@ -14,6 +14,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,6 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         = new UsernamePasswordAuthenticationToken(
                                 username // Principal : 컨트롤러가 사용할 인증된 유저의 식별자
                         ,null // 비밀번호 저장 : 일반적으로 저장 안함
+                        , new ArrayList<>()
                         // , List.of( new SimpleGrantedAuthority(토큰에서 꺼낸 권한)
                 );
 
