@@ -32,3 +32,8 @@ jwt:
   secret: 7VZC2qbJz2BEsdR0XQF4za5DlSpsZRUUmUzmR49iptY=
   # 만료시간 (ms) - 24 hour
   expiration: 86400000
+
+# file upload root location setting
+file:
+  upload:
+    location: ${user.home}/travels/uploads/
