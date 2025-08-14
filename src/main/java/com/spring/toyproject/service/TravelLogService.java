@@ -43,7 +43,7 @@ public class TravelLogService {
     /**
      * 여행일지 생성
      */
-    public void creatTravelLog(TravelLogRequestDto request, Long tripId, String username, List<MultipartFile> imageFiles){
+    public void createTravelLog(TravelLogRequestDto request, Long tripId, String username, List<MultipartFile> imageFiles){
         log.info("여행 일지 생성 시작 - 사용자 명 {}, 제목: {})",username, request.getTitle());
 
         // 사용자 조회
