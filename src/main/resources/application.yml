@@ -25,6 +25,11 @@ logging:
     # SQL param binding check
     org.hibernate.type.descriptor.sql.BasicBInder : TRACE
 
+  # file upload setting
+    servlet:
+      multipart:
+        max-file-size: 10MB  # ???? ?? 1?? ?? ??? ??
+        max-request-size: 100MB  # ??? ???? ? ?? ??? ? ??
 
 # jwt setting
 jwt:
