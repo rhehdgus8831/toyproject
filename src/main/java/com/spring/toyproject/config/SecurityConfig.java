@@ -50,6 +50,7 @@ public class SecurityConfig {
                                         , "/signup"
                                         , "/trips/**"
                                         , "/dashboard"
+                                        , "uploads/**"
                                 ).permitAll()
                                 .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
                                 .requestMatchers("/api/auth/**").permitAll()
