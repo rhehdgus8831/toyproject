@@ -8,10 +8,7 @@ import com.spring.toyproject.domain.entity.Trip;
 import com.spring.toyproject.domain.entity.User;
 import com.spring.toyproject.exception.BusinessException;
 import com.spring.toyproject.exception.ErrorCode;
-import com.spring.toyproject.repository.base.TravelLogRepository;
-import com.spring.toyproject.repository.base.TravelPhotoRepository;
-import com.spring.toyproject.repository.base.TripRepository;
-import com.spring.toyproject.repository.base.UserRepository;
+import com.spring.toyproject.repository.base.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,6 +33,9 @@ public class TravelLogService {
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
     private final TravelPhotoRepository travelPhotoRepository;
+    private final TravelLogTagRepository travelLogTagRepository;
+    private final TagRepository tagRepository;
+
 
     /**
      * 여행일지 생성
@@ -67,8 +67,17 @@ public class TravelLogService {
                 .trip(trip)
                 .build();
 
-        // 여행 일지 저장
+        // 여행 일지 저장 -> 여행 일지의 id가 생성됨
         TravelLog savedTravelLog = travelLogRepository.save(travelLog);
+
+        // 해시태그가 있다면 해시태그도 중간테이블에 연계저장
+        List<Long> tagIds = request.getTagIds();
+        if (tagIds != null && !tagIds.isEmpty()) {
+            tagIds.forEach(tagId -> {
+               savedTravelLog.addTag(tagRepository.findById(tagId).orElseThrow());
+            });
+        }
+
 
         // 이미지가 있다면 이미지도 함께 INSERT
         if (imageFiles != null && !imageFiles.isEmpty()) {
