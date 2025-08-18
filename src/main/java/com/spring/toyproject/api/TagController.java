@@ -2,6 +2,7 @@ package com.spring.toyproject.api;
 
 import com.spring.toyproject.domain.dto.common.ApiResponse;
 import com.spring.toyproject.domain.dto.request.TagRequestDto;
+import com.spring.toyproject.domain.dto.response.TagResponseDto;
 import com.spring.toyproject.repository.base.TagRepository;
 import com.spring.toyproject.service.TagService;
 import jakarta.validation.Valid;
@@ -30,10 +31,10 @@ public class TagController {
             @RequestBody @Valid TagRequestDto requestDto
     ) {
 
-        tagService.createTag(requestDto);
+        TagResponseDto tag = tagService.createTag(requestDto);
 
         return ResponseEntity.ok().body(
-                ApiResponse.success("",null)
+                ApiResponse.success("생성된 tag-id: %s".formatted(tag.getId()),tag)
         );
     }
 
