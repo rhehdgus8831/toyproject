@@ -36,4 +36,8 @@ export const PAGE_CONFIG = {
         module: 'trip-detail',
         requiresAuth: true
     },
+    '/travel-logs': {
+        module: 'travel-log-list',
+        requiresAuth: true
+    },
 };
