@@ -2,6 +2,7 @@ package com.spring.toyproject.api;
 
 import com.spring.toyproject.domain.dto.common.ApiResponse;
 import com.spring.toyproject.domain.dto.request.TravelLogRequestDto;
+import com.spring.toyproject.domain.dto.response.TagResponseDto;
 import com.spring.toyproject.domain.dto.response.TravelLogResponseDto;
 import com.spring.toyproject.repository.custom.TravelLogRepositoryCustom;
 import com.spring.toyproject.service.TravelLogService;
@@ -33,10 +34,8 @@ public class TravelLogController {
      * 여행일지 생성 API
      * POST /api/travel-logs
      *
-     * consumes : 클라이언트가 보낸 데이터의 형태 ( 기본값 : JSON )
-     * produces : 서버가 응답할 때 보내는 데이터 ( 기본값 : JSON )
-     *
-     * @RequestPart - JSON과 file을 같이 받을 때 사용
+     * consumes : 클라이언트가 보낸 데이터의 형태 (기본값: json)
+     * produces : 서버가 응답할 때 보내는 데이터 (기본값: json)
      */
     @PostMapping
     public ResponseEntity<?> createTravelLogs(
@@ -47,7 +46,7 @@ public class TravelLogController {
     ) {
         log.info("여행 일지 생성 API 호출 - 사용자: {}, 여행ID: {}", username, tripId);
         for (MultipartFile file : files) {
-            log.info("첨부된 파일명: {}",file.getOriginalFilename());
+            log.info("첨부된 파일명: {}", file.getOriginalFilename());
         }
 
         travelLogService.createTravelLog(requestDto, tripId, username, files);
@@ -57,7 +56,7 @@ public class TravelLogController {
     }
 
     /**
-     * 여행일지 목록 조회 API
+     * 여행일지 목록조회 API
      * GET /api/travel-logs
      */
     @GetMapping
@@ -72,7 +71,6 @@ public class TravelLogController {
         log.info("여행일지 목록 조회 API 호출 - 사용자: {}, 여행 ID: {}, 페이지: {}, 크기: {}",
                 username, tripId, page, size);
 
-        // String username = userDetails.getUsername();
 
         // 검색 조건 구성
         TravelLogRepositoryCustom.TravelLogSearchCondition condition =
@@ -84,7 +82,39 @@ public class TravelLogController {
         Pageable pageable = PageRequest.of(page, size);
         Page<TravelLogResponseDto> travelLogs = travelLogService.getTravelLogsByTrip(username, tripId, condition, pageable);
 
-        return ResponseEntity.ok(ApiResponse.success("",travelLogs));
+        return ResponseEntity.ok(ApiResponse.success("", travelLogs));
+    }
+
+    /**
+     * 여행일지 상세 조회 API
+     * GET /api/travel-logs/{travelLogId}
+     */
+    @GetMapping("/{travelLogId}")
+    public ResponseEntity<?> getTravelLogDetail(
+            @AuthenticationPrincipal String username,
+            @PathVariable(name = "travelLogId") Long travelLogId) {
+
+        log.info("여행일지 상세 조회 API 호출 - 사용자: {}, 여행일지 ID: {}", username, travelLogId);
+
+        TravelLogResponseDto travelLogDetail = travelLogService.getTravelLogDetail(username, travelLogId);
+
+        return ResponseEntity.ok(ApiResponse.success("", travelLogDetail));
+    }
+
+    /**
+     * 여행 일지 단건 조회시 해시태그 목록 조회 API
+     * GET /api/travel-logs/{id}/tags
+     */
+    @GetMapping("/{travelLogId}/tags")
+    public ResponseEntity<?> getTags(
+            @AuthenticationPrincipal String username
+            , @PathVariable Long travelLogId
+    ) {
+
+        List<TagResponseDto> responses
+                = travelLogService.getTagsByTravelLog(username, travelLogId);
+
+        return ResponseEntity.ok(ApiResponse.success("", responses));
     }
 
 }
