@@ -2,15 +2,16 @@ package com.spring.toyproject.service;
 
 import com.spring.toyproject.config.FileUploadConfig;
 import com.spring.toyproject.domain.dto.request.TravelLogRequestDto;
-import com.spring.toyproject.domain.entity.TravelLog;
-import com.spring.toyproject.domain.entity.TravelPhoto;
-import com.spring.toyproject.domain.entity.Trip;
-import com.spring.toyproject.domain.entity.User;
+import com.spring.toyproject.domain.dto.response.TravelLogResponseDto;
+import com.spring.toyproject.domain.entity.*;
 import com.spring.toyproject.exception.BusinessException;
 import com.spring.toyproject.exception.ErrorCode;
 import com.spring.toyproject.repository.base.*;
+import com.spring.toyproject.repository.custom.TravelLogRepositoryCustom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,9 +35,7 @@ public class TravelLogService {
     private final TripRepository tripRepository;
     private final UserRepository userRepository;
     private final TravelPhotoRepository travelPhotoRepository;
-    private final TravelLogTagRepository travelLogTagRepository;
     private final TagRepository tagRepository;
-
 
     /**
      * 여행일지 생성
@@ -67,21 +67,19 @@ public class TravelLogService {
                 .trip(trip)
                 .build();
 
-        // 여행 일지 저장 -> 여행 일지의 id가 생성됨
+        // 여행 일지 저장 -> 여행 일지의 ID가 생성됨
         TravelLog savedTravelLog = travelLogRepository.save(travelLog);
 
         // 해시태그가 있다면 해시태그도 중간테이블에 연계저장
         List<Long> tagIds = request.getTagIds();
         if (tagIds != null && !tagIds.isEmpty()) {
             tagIds.forEach(tagId -> {
-               savedTravelLog.addTag(tagRepository.findById(tagId).orElseThrow());
+                savedTravelLog.addTag(tagRepository.findById(tagId).orElseThrow());
             });
         }
 
-
         // 이미지가 있다면 이미지도 함께 INSERT
         if (imageFiles != null && !imageFiles.isEmpty()) {
-
 
             // 첨부이미지 파일은 최대 5개만 허용
             for (int i = 0; i < Math.min(imageFiles.size(), 5); i++) {
@@ -137,5 +135,46 @@ public class TravelLogService {
             }
 
         }
+    }
+
+    /**
+     * 여행별 여행일지 목록 조회
+     */
+    public Page<TravelLogResponseDto> getTravelLogsByTrip(String username, Long tripId, TravelLogRepositoryCustom.TravelLogSearchCondition condition, Pageable pageable) {
+
+        // 사용자 조회
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        Page<TravelLog> responseData;
+
+        // 여행 ID가 없이 전체여행의 일지 조회를 원하는 경우 사용자ID로 모든 여행일지를 조회한다.
+        if (tripId == null) {
+            responseData = travelLogRepository.findTravelLogsByUserId(user.getId(), condition, pageable);
+        } else {
+            // 여행정보 조회
+            Trip trip = tripRepository.findByIdAndUser(tripId, user)
+                    .orElseThrow(() -> new BusinessException(ErrorCode.TRIP_NOT_FOUND));
+
+            // 여행별 여행일지 조회
+            responseData = travelLogRepository.findTravelLogsByTrip(trip, condition, pageable);
+        }
+
+        return responseData.map(res -> TravelLogResponseDto.from(res, getCoverImgUrl(res)));
+    }
+
+    /**
+     * 이미지 대표 썸네일 경로 가져오기
+     */
+    private String getCoverImgUrl(TravelLog travelLog) {
+        List<TravelPhoto> travelPhotos = travelLog.getTravelPhotos();
+        if (travelPhotos != null && !travelPhotos.isEmpty()) {
+            TravelPhoto travelPhoto = travelPhotos.stream()
+                    .sorted(Comparator.comparing(TravelPhoto::getDisplayOrder))
+                    .findFirst()
+                    .orElseThrow();
+            return travelPhoto.getFilePath();
+        }
+        return null;
     }
 }
